@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PAVAN — Weather</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Particle canvas + icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+</head>
+<body class="weather-default" id="body">
+
+  <!-- Animated particle canvas -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- Aurora / gradient background layers -->
+  <div class="bg-layer" id="bgLayer"></div>
+  <div class="noise-overlay"></div>
+
+  <!-- ═══════════ APP WRAPPER ═══════════ -->
+  <div class="app-wrapper">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">PAVAN</span>
+      </div>
+      <div class="header-right">
+        <div class="datetime" id="datetime"></div>
+      </div>
+    </header>
+
+    <!-- Search bar -->
+    <section class="search-section">
+      <div class="search-container">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            id="cityInput"
+            class="search-input"
+            placeholder="Search city…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="search-btn" id="searchBtn" title="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Recent searches -->
+        <div class="recent-searches" id="recentSearches"></div>
+
+        <!-- Locate me -->
+        <button class="locate-btn" id="locateBtn" title="Use my location">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+            <circle cx="12" cy="12" r="7" stroke-dasharray="3 2"/>
+          </svg>
+          <span>Locate Me</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══ MAIN WEATHER DISPLAY ═══ -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Loading spinner -->
+      <div class="loader" id="loader">
+        <div class="loader-ring"></div>
+        <div class="loader-ring"></div>
+        <div class="loader-ring"></div>
+        <p class="loader-text">Fetching weather…</p>
+      </div>
+
+      <!-- Error message -->
+      <div class="error-card" id="errorCard">
+        <div class="error-icon">⚠</div>
+        <h3 class="error-title">City Not Found</h3>
+        <p class="error-msg" id="errorMsg">Please check the city name and try again.</p>
+      </div>
+
+      <!-- Welcome state -->
+      <div class="welcome-state" id="welcomeState">
+        <div class="welcome-icon">◈</div>
+        <h2 class="welcome-title">Discover the Weather</h2>
+        <p class="welcome-sub">Search for any city or use your location to get started.</p>
+      </div>
+
+      <!-- ═══ PRIMARY WEATHER CARD ═══ -->
+      <div class="weather-card" id="weatherCard">
+
+        <!-- Card top row: city + refresh -->
+        <div class="card-top">
+          <div class="city-info">
+            <h1 class="city-name" id="cityName">—</h1>
+            <p class="country-name" id="countryName">—</p>
+          </div>
+          <button class="refresh-btn" id="refreshBtn" title="Refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Main temp + icon -->
+        <div class="main-temp-row">
+          <div class="temp-block">
+            <span class="temperature" id="temperature">—</span>
+            <span class="temp-unit">°C</span>
+          </div>
+          <div class="weather-icon-wrap">
+            <img class="weather-icon" id="weatherIcon" src="" alt="weather icon" />
+            <div class="icon-glow" id="iconGlow"></div>
+          </div>
+        </div>
+
+        <!-- Condition label -->
+        <p class="condition-label" id="conditionLabel">—</p>
+
+        <!-- Divider -->
+        <div class="card-divider"></div>
+
+        <!-- Stats grid -->
+        <div class="stats-grid">
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/>
+              <circle cx="12" cy="9" r="2.5"/>
+            </svg>
+            <div>
+              <p class="stat-label">Feels Like</p>
+              <p class="stat-value" id="feelsLike">—</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2v12M8 6l4-4 4 4"/>
+              <path d="M5 17a3 3 0 0 0 6 0c0-1.66-3-5-3-5s-3 3.34-3 5z"/>
+              <path d="M14 17a3 3 0 0 0 6 0c0-1.66-3-5-3-5s-3 3.34-3 5z"/>
+            </svg>
+            <div>
+              <p class="stat-label">Humidity</p>
+              <p class="stat-value" id="humidity">—</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>
+            </svg>
+            <div>
+              <p class="stat-label">Wind Speed</p>
+              <p class="stat-value" id="windSpeed">—</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="5"/>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            </svg>
+            <div>
+              <p class="stat-label">Visibility</p>
+              <p class="stat-value" id="visibility">—</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sunrise / Sunset -->
+        <div class="sun-row">
+          <div class="sun-item">
+            <div class="sun-icon sunrise">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M4.93 10.93l2.83 2.83M2 18h20M6 18a6 6 0 0 1 12 0"/>
+                <path d="m8 7 4-4 4 4"/>
+              </svg>
+            </div>
+            <div>
+              <p class="sun-label">Sunrise</p>
+              <p class="sun-time" id="sunrise">—</p>
+            </div>
+          </div>
+          <div class="sun-divider"></div>
+          <div class="sun-item">
+            <div class="sun-icon sunset">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 6v4M4.93 10.93l2.83 2.83M2 18h20M6 18a6 6 0 0 1 12 0"/>
+                <path d="m8 13 4 4 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <p class="sun-label">Sunset</p>
+              <p class="sun-time" id="sunset">—</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- /weather-card -->
+
+      <!-- ═══ 5-DAY FORECAST ═══ -->
+      <div class="forecast-section" id="forecastSection">
+        <h2 class="section-title">5-Day Forecast</h2>
+        <div class="forecast-grid" id="forecastGrid">
+          <!-- Forecast cards injected by JS -->
+        </div>
+      </div>
+
+    </main>
+    <!-- /main-content -->
+
+  </div>
+  <!-- /app-wrapper -->
+
+  <script src="script.js"></script>
+</body>
+</html>
