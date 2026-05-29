@@ -1,1 +1,16 @@
-
+🌦️ Weather App
+A modern weather application that provides real-time weather updates, forecasts, and location-based weather information with a clean and responsive user interface.
+✨ Features
+🌍 Search weather by city name
+📍 Current location weather support
+🌡️ Real-time temperature display
+💧 Humidity information
+💨 Wind speed details
+☁️ Weather conditions and icons
+📅 Multi-day weather forecast
+🌙 Responsive and user-friendly design
+⚡ Fast and lightweight
+🛠️ Tech Stack
+Frontend: HTML, CSS, JavaScript / React
+Weather API: OpenWeatherMap API
+Hosting: Vercel / Netlify
